@@ -1,0 +1,11 @@
+HTTP/1.1 100 Continue
+
+HTTP/1.1 200 OK
+Date: Tue, 19 Nov 2013 20:50:45 GMT
+Server: Apache/2.2.14 (Ubuntu)
+Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+Pragma: no-cache
+Content-Length: 95
+Content-Type: application/json
+
+{example: 1}
