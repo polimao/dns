@@ -42,12 +42,12 @@ trait BaseTrait {
      */
     public static function find($id, $columns = array('*'))
     {
-        $key = self::key_cache($id);
-        return Cache::tags(self::getModelName())->rememberForever($key, function() use($id, $columns)
-        {
+        // $key = self::key_cache($id);
+        // return Cache::tags(self::getModelName())->rememberForever($key, function() use($id, $columns)
+        // {
             return static::query()->find($id, $columns);
             // return parent::find($id, $columns);
-        });
+        // });
     }
 
     public static function flush(){
@@ -108,7 +108,7 @@ trait BaseTrait {
         {
             if (in_array($event, array('updated', 'saved', 'deleted')))
             {
-                self::forget($this->id);
+                // self::forget($this->id);
             }
         }
     }

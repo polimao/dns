@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\Dms::class,
-        \App\Console\Commands\zhihu::class,
+        \App\Console\Commands\zhihu2::class,
+        \App\Console\Commands\CrawlerZhiHu::class,
     ];
 
     /**

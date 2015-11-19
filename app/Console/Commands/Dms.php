@@ -22,8 +22,8 @@ class Dms extends Command {
     public function handle()
     {
         $this->info('--------start-----');
-        // $this->grab();
-        $this->validation();
+        $this->grab();
+        // $this->validation();
         $this->info('------end---------');
     }
 

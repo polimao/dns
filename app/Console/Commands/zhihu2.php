@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use App\Console\Boot;
 use App\Console\Commands\Crawler;
 
-class zhihu extends Boot
+class zhihu2 extends Boot
 {
     /**
      * The name and signature of the console command.

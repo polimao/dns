@@ -8,7 +8,7 @@ use App\Traits\BaseTrait;
 class CommandHistory extends Model
 {
     use BaseTrait;
-    protected $table = 'xcar_data.command_histories';
+    protected $table = 'command_histories';
     protected $fillable = ['*'];
     public $timestamps = false;
 
