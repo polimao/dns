@@ -5,13 +5,14 @@ namespace App\Console\Commands;
 use App\Console\Commands\Crawler;
 use App\Console\Boot;
 use App\Http\ZhiHu;
+use App\Http\ZhiHuUser;
 use Curl;
 class CrawlerZhiHu extends Boot{
 
     protected $signature = 'crawler:zhihu {mutix?}';
 
     /** @var string [描述] */
-    protected $description = 'weibo';
+    protected $description = 'zhihu';
 
     public function __construct()
     {
@@ -35,18 +36,30 @@ class CrawlerZhiHu extends Boot{
     		$zhihus = ZhiHu::whereStatus(0)->limit(100)->get();
     		foreach ($zhihus as $zhihu) {
 
-				$craw = new Crawler();
-    			$url = $zhihu->url;
+                $craw = new Crawler();
+                $url = $zhihu->url;
+                $this->info($url);
 
     			$craw->get($url)->startFilter();
 
-				$zhihu->title = $craw->filter('h2.zm-item-title')->text();
+                $zhihu->title = $craw->filter('h2.zm-item-title')->text();
+
+                $answerNode = $craw->filter('h3#zh-question-answer-num');
+
+                $zhihu->answer_num = count($answerNode)?$answerNode->attr('data-num'):0;
+
+                $concerned_num = $craw->filter('div#zh-question-side-header-wrap')->text();
+
+                preg_match('/\d+/', $concerned_num,$matchs);
+                $this->comment('answer----conserned:   ' . $zhihu->answer_num.'---'.$matchs[0]);
+
+                $zhihu->concerned_num = $matchs[0];
 
 				$zhihu->status = 1;
 
 				$zhihu->save();
 
-				$this->info($url);
+
 
 				// ZhiHu::saveData(compact('url','status','title'));
 
@@ -57,6 +70,15 @@ class CrawlerZhiHu extends Boot{
 					if(!ZhiHu::where('url',$child_url)->first())
 						ZhiHu::saveData(['url'=>$child_url]);
 				});
+
+                $craw->filter('a.author-link')->each(function($node){
+                    $link = $node->attr('href');
+                    $child_url = 'http://www.zhihu.com'.$link;
+                    if(!ZhiHuUser::where('url',$child_url)->first())
+                        ZhiHuUser::saveData(['url'=>$child_url]);
+                });
+
+                
     		}
     	}
     	
