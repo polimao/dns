@@ -61,7 +61,7 @@ class CurlResponse {
         # Convert headers into an associative array
         foreach ($headers as $header) {
             preg_match('#(.*?)\:\s(.*)#', $header, $matches);
-            $this->headers[$matches[1]] = $matches[2];
+            isset($matches[1]) and $this->headers[$matches[1]] = $matches[2];
         }
     }
 
