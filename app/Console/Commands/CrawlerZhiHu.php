@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Console\Commands;
 
@@ -8,10 +8,10 @@ use App\Http\ZhiHu;
 use Curl;
 class CrawlerZhiHu extends Boot{
 
-    protected $signature = 'crawler:zhihu {mutix?}';
+    protected $signature = 'crawler:zhihu {mutix?} {--limit=} {--offset=}';
 
     /** @var string [描述] */
-    protected $description = 'weibo';
+    protected $description = 'zhihu';
 
     public function __construct()
     {
@@ -24,15 +24,32 @@ class CrawlerZhiHu extends Boot{
 
 		ZhiHu::unguard(true);
 
-		$this->grap();
+		if($this->argument('mutix'))
+            $this->mutix();
+        else
+            $this->grap();
 
         $this->end();
     }
 
+    public function mutix()
+    {
+        $count = ZhiHu::whereStatus(0)->count();
+        $this->scryed($count,10,['artisan','crawler:zhihu']);
+    }
+
     public function grap()
     {
+
+        $offset = $this->option('offset');
+        $limit = $this->option('limit');
+
     	while (true) {
-    		$zhihus = ZhiHu::whereStatus(0)->limit(100)->get();
+    		$query = ZhiHu::whereStatus(0);
+            $offset && $query = $query->skip($offset);
+            $limit && $query = $query->take($limit);
+
+            $zhihus = $query->get();
     		foreach ($zhihus as $zhihu) {
 
 				$craw = new Crawler();
@@ -40,7 +57,9 @@ class CrawlerZhiHu extends Boot{
 
     			$craw->get($url)->startFilter();
 
-				$zhihu->title = $craw->filter('h2.zm-item-title')->text();
+                $titleNode = $craw->filter('h2.zm-item-title');
+
+				$zhihu->title = $titleNode->text();
 
 				$zhihu->status = 1;
 
@@ -51,7 +70,9 @@ class CrawlerZhiHu extends Boot{
 				// ZhiHu::saveData(compact('url','status','title'));
 
 
-				$craw->filter('a.question_link')->each(function($node){
+				$links = $craw->filter('a.question_link');
+                if(count($links))
+                $links->each(function($node){
 					$link = $node->attr('href');
 					$child_url = 'http://www.zhihu.com'.$link;
 					if(!ZhiHu::where('url',$child_url)->first())
@@ -59,7 +80,7 @@ class CrawlerZhiHu extends Boot{
 				});
     		}
     	}
-    	
+
 
 
 
