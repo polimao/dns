@@ -41,6 +41,14 @@ class CrawlerWeiBo extends Boot
     public function handle()
     {
         $this->start();
+        
+        $this->grab();
+
+        $this->end();
+    }
+
+    public function grab()
+    {
         $weibos = WeiBo::whereStatus(0)->get();
 
         $count = count($weibos);
@@ -50,14 +58,15 @@ class CrawlerWeiBo extends Boot
 
             $crawler = new Crawler;
 
-            dd(1);
+
             $crawler->get($weibo->url)->startfilter();
 
-            $crawler->filter('body');
-            dd($crawler->body);
-        }
+            $file = fopen('./test.html', 'w');
+            fwrite($file, $crawler->getBody());
+            $weibo->name = $crawler->filter('h1.username')->text();
 
-        $this->end();
+            $weibo->save();
+        }
     }
 
 }
