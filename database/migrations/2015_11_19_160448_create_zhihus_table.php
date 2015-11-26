@@ -15,6 +15,7 @@ class CreateZhihusTable extends Migration
         Schema::create('zhi_hus', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
+            $table->text('content');
             $table->string('url');
             $table->integer('status');
             $table->timestamps();

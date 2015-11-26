@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Console\Commands;
 
@@ -33,7 +33,7 @@ class CrawlerZhiHuUser extends Boot{
     {
 
     	while (true) {
-    		$zhihus = ZhiHuUser::whereStatus(0)->limit(100)->get();
+    		$zhihus = ZhiHuUser::whereStatus(0)->orderBy('created_at','desc')->limit(100)->get();
     		foreach ($zhihus as $user) {
 
                 $craw = new Crawler();
@@ -42,16 +42,32 @@ class CrawlerZhiHuUser extends Boot{
 
     			$craw->get($url)->startFilter();
 
-                $nameNode = $craw->filter('span.name');
+                // $loginNode = $craw->filter('span.name');
+                // if(count($loginNode)){
+                //     $this->error('被防抓取');
+                //     dd($loginNode->text());
+                //     continue;
+                // }
 
+                $nameNode = $craw->filter('span.name');
                 if(!count($nameNode)){
+                    $user->status = -1;
+                    $user->save();
                     $this->error('this user is die');
                     continue;
                 }
-
                 $user->name = $nameNode->text();
 
                 $cityNode = $craw->filter('span.location');
+
+                $genderNode = $craw->filter('span.gender i');
+                if(count($genderNode)){
+                    if(strstr($genderNode->attr('class'),'female'))
+                        $user->gender = 2;
+                    else
+                        $user->gender = 1;
+                    // elseif(strstr($genderNode->attr('class'),'female');
+                }
 
                 $user->city = count($cityNode)?$cityNode->attr('title'):'';
 
@@ -61,12 +77,10 @@ class CrawlerZhiHuUser extends Boot{
 
                 $descNode = $craw->filter('span.description');
 
-                $user->desc = count($descNode)?$descNode->text():'';
-
+                $user->desc = count($descNode)?trim($descNode->text()):'';
 
                 $user->be_favor = $craw->filter('span.zm-profile-header-user-agree strong')->text();
                 $user->be_thank = $craw->filter('span.zm-profile-header-user-thanks strong')->text();
-
 
                 $user->asks = $craw->filter('div.profile-navbar a')->eq(1)->filter('span.num')->text();
                 $user->answers = $craw->filter('div.profile-navbar a')->eq(2)->filter('span.num')->text();
@@ -92,7 +106,7 @@ class CrawlerZhiHuUser extends Boot{
 				// });
     		}
     	}
-    	
+
 
 
 

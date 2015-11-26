@@ -15,7 +15,7 @@ class CreateZhiHuUsers extends Migration
         Schema::create('zhi_hu_users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->integer('sex');
+            $table->integer('gender');
             $table->string('city');
             $table->string('job');
             $table->string('desc');
