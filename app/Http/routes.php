@@ -12,6 +12,7 @@
 */
 
 Route::get('/', function () {
-    new Curl;
-    return view('welcome');
+    $zhi_hus = App\Http\ZhiHu::orderBy('concerned_num','desc')->limit(50)->get();
+
+    return $zhi_hus;
 });

@@ -35,7 +35,7 @@ class CrawlerZhiHu extends Boot{
 
     public function mutix()
     {
-        $count = ZhiHu::whereStatus(0)->count();
+        $count = ZhiHu::where('status',0)->count();
         $this->scryed($count,8,['artisan','crawler:zhihu']);
     }
 
@@ -59,7 +59,12 @@ class CrawlerZhiHu extends Boot{
 
 			$craw->get($url)->startFilter();
 
-            $zhihu->title = trim($craw->filter('h2.zm-item-title')->text());
+            $titleNode = $craw->filter('h2.zm-item-title');
+
+            if(count($titleNode))
+                $zhihu->title = trim($titleNode->text());
+            else
+                continue;
 
             $zhihu->content = $craw->filter('div.zm-editable-content')->text();
 
@@ -85,22 +90,22 @@ class CrawlerZhiHu extends Boot{
 
             $this->comment('answer----conserned:   ' . $zhihu->answer_num.'---'.$zhihu->concerned_num);
 
-			$links = $craw->filter('a.question_link');
-            if(count($links))
-            $links->each(function($node){
-				$link = 'http://www.zhihu.com' . $node->attr('href');
-                if(!ZhiHu::where('url',$link)->first()){
-                    $this->question($link);
-					ZhiHu::saveData(['url'=>$link]);
-                }
-			});
+			// $links = $craw->filter('a.question_link');
+   //          if(count($links))
+   //          $links->each(function($node){
+			// 	$link = 'http://www.zhihu.com' . $node->attr('href');
+   //              if(!ZhiHu::where('url',$link)->first()){
+   //                  $this->question($link);
+			// 		ZhiHu::saveData(['url'=>$link]);
+   //              }
+			// });
 
-            $userLinks = $craw->filter('a.author-link');
-            if(count($userLinks))
-            $userLinks->each(function($node){
-                $link = 'http://www.zhihu.com' . $node->attr('href');
-                ZhiHuUser::firstOrCreate(['url'=>$link],['url'=>$link]);
-            });
+   //          $userLinks = $craw->filter('a.author-link');
+   //          if(count($userLinks))
+   //          $userLinks->each(function($node){
+   //              $link = 'http://www.zhihu.com' . $node->attr('href');
+   //              ZhiHuUser::firstOrCreate(['url'=>$link],['url'=>$link]);
+   //          });
 
 		}
 
