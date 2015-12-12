@@ -34,7 +34,7 @@ class CrawlerZhiHuUser extends Boot{
 
     public function mutix()
     {
-        $count = 20000;
+        $count = ZhiHuUser::whereStatus(-1)->count();
         $this->scryed($count,8,['artisan','crawler:zhihuuser']);
     }
 
@@ -44,17 +44,19 @@ class CrawlerZhiHuUser extends Boot{
         $limit = $this->option('limit');
 
 
-        $query = ZhiHuUser::whereStatus(0)->orderBy('created_at','asc');
+        $query = ZhiHuUser::whereStatus(-1)->orderBy('created_at','desc');
         $offset and $query = $query->skip($offset);
         $limit and $query = $query->take($limit);
 
         $zhihus = $query->get();
 
-		foreach ($zhihus as $user) {
+        $count = count($zhihus);
+        $start_time = time();
+		foreach ($zhihus as $key=>$user) {
 
             $craw = new Crawler();
             $url = $user->url;
-            $this->info($url);
+            $this->info($url . "        {$count}/{$key}");
 
 			$craw->get($url)->startFilter();
 
@@ -64,10 +66,9 @@ class CrawlerZhiHuUser extends Boot{
             //     dd($loginNode->text());
             //     continue;
             // }
-
             $nameNode = $craw->filter('span.name');
             if(!count($nameNode)){
-                $user->status = -1;
+                $user->status = -2;
                 $user->save();
                 $this->error('this user is die');
                 continue;
@@ -109,17 +110,8 @@ class CrawlerZhiHuUser extends Boot{
 
 			$user->save();
 
-
-
-			// ZhiHu::saveData(compact('url','status','title'));
-
-
-			// $craw->filter('a.question_link')->each(function($node){
-			// 	$link = $node->attr('href');
-			// 	$child_url = 'http://www.zhihu.com'.$link;
-			// 	if(!ZhiHu::where('url',$child_url)->first())
-			// 		ZhiHu::saveData(['url'=>$child_url]);
-			// });
+            if((time() - $start_time) % 300 == 0 )
+                sleep(30);
 		}
 
 
