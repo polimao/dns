@@ -45,70 +45,70 @@ class CrawlerZhiHu extends Boot{
         $offset = $this->option('offset');
         $limit = $this->option('limit');
 
+        while(true){
+    		$query = ZhiHu::where('status',0);
+            $offset and $query = $query->skip($offset);
+            $limit and $query = $query->take($limit);
 
-		$query = ZhiHu::where('status',0);
-        $offset and $query = $query->skip($offset);
-        $limit and $query = $query->take($limit);
+            $zhihus = $query->get();
+    		foreach ($zhihus as $zhihu) {
 
-        $zhihus = $query->get();
-		foreach ($zhihus as $zhihu) {
+                $craw = new Crawler();
+                $url = $zhihu->url;
+                $this->info($url);
 
-            $craw = new Crawler();
-            $url = $zhihu->url;
-            $this->info($url);
+    			$craw->get($url)->startFilter();
 
-			$craw->get($url)->startFilter();
+                $titleNode = $craw->filter('h2.zm-item-title');
 
-            $titleNode = $craw->filter('h2.zm-item-title');
+                if(count($titleNode))
+                    $zhihu->title = trim($titleNode->text());
+                else
+                    continue;
 
-            if(count($titleNode))
-                $zhihu->title = trim($titleNode->text());
-            else
-                continue;
+                $zhihu->content = $craw->filter('div.zm-editable-content')->text();
 
-            $zhihu->content = $craw->filter('div.zm-editable-content')->text();
+                $answerNode = $craw->filter('h3#zh-question-answer-num');
 
-            $answerNode = $craw->filter('h3#zh-question-answer-num');
+                $zhihu->answer_num = count($answerNode)?$answerNode->attr('data-num'):0;
 
-            $zhihu->answer_num = count($answerNode)?$answerNode->attr('data-num'):0;
+                $concerned_num = $craw->filter('div#zh-question-side-header-wrap')->text();
 
-            $concerned_num = $craw->filter('div#zh-question-side-header-wrap')->text();
+                preg_match('/\d+/', $concerned_num,$matchs);
 
-            preg_match('/\d+/', $concerned_num,$matchs);
+                $zhihu->concerned_num = isset($matchs[0])?$matchs[0]:0;
 
-            $zhihu->concerned_num = isset($matchs[0])?$matchs[0]:0;
+                // $viewNode = $craw->filter('.zm-side-section-inner .zg-gray-normal')->last()->text();
 
-            // $viewNode = $craw->filter('.zm-side-section-inner .zg-gray-normal')->last()->text();
+    // dd($viewNode);
+                // $zhihu->views = count($viewNode)?$viewNode->text():0;
+                // dd($zhihu->views);
 
-// dd($viewNode);
-            // $zhihu->views = count($viewNode)?$viewNode->text():0;
-            // dd($zhihu->views);
+                $zhihu->status = 1;
 
-            $zhihu->status = 1;
+                $zhihu->save();
 
-            $zhihu->save();
+                $this->comment('answer----conserned:   ' . $zhihu->answer_num.'---'.$zhihu->concerned_num);
 
-            $this->comment('answer----conserned:   ' . $zhihu->answer_num.'---'.$zhihu->concerned_num);
+    			$links = $craw->filter('a.question_link');
+                if(count($links))
+                $links->each(function($node){
+    				$link = 'http://www.zhihu.com' . $node->attr('href');
+                    if(!ZhiHu::where('url',$link)->first()){
+                        $this->question($link);
+    					ZhiHu::saveData(['url'=>$link]);
+                    }
+    			});
 
-			$links = $craw->filter('a.question_link');
-            if(count($links))
-            $links->each(function($node){
-				$link = 'http://www.zhihu.com' . $node->attr('href');
-                if(!ZhiHu::where('url',$link)->first()){
-                    $this->question($link);
-					ZhiHu::saveData(['url'=>$link]);
-                }
-			});
+                $userLinks = $craw->filter('a.author-link');
+                if(count($userLinks))
+                $userLinks->each(function($node){
+                    $link = 'http://www.zhihu.com' . $node->attr('href');
+                    ZhiHuUser::firstOrCreate(['url'=>$link],['url'=>$link]);
+                });
 
-            $userLinks = $craw->filter('a.author-link');
-            if(count($userLinks))
-            $userLinks->each(function($node){
-                $link = 'http://www.zhihu.com' . $node->attr('href');
-                ZhiHuUser::firstOrCreate(['url'=>$link],['url'=>$link]);
-            });
-
-		}
-
+    		}
+        }
 
     }
 
