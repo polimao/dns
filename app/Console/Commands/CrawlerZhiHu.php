@@ -90,22 +90,22 @@ class CrawlerZhiHu extends Boot{
 
             $this->comment('answer----conserned:   ' . $zhihu->answer_num.'---'.$zhihu->concerned_num);
 
-			// $links = $craw->filter('a.question_link');
-   //          if(count($links))
-   //          $links->each(function($node){
-			// 	$link = 'http://www.zhihu.com' . $node->attr('href');
-   //              if(!ZhiHu::where('url',$link)->first()){
-   //                  $this->question($link);
-			// 		ZhiHu::saveData(['url'=>$link]);
-   //              }
-			// });
+			$links = $craw->filter('a.question_link');
+            if(count($links))
+            $links->each(function($node){
+				$link = 'http://www.zhihu.com' . $node->attr('href');
+                if(!ZhiHu::where('url',$link)->first()){
+                    $this->question($link);
+					ZhiHu::saveData(['url'=>$link]);
+                }
+			});
 
-   //          $userLinks = $craw->filter('a.author-link');
-   //          if(count($userLinks))
-   //          $userLinks->each(function($node){
-   //              $link = 'http://www.zhihu.com' . $node->attr('href');
-   //              ZhiHuUser::firstOrCreate(['url'=>$link],['url'=>$link]);
-   //          });
+            $userLinks = $craw->filter('a.author-link');
+            if(count($userLinks))
+            $userLinks->each(function($node){
+                $link = 'http://www.zhihu.com' . $node->attr('href');
+                ZhiHuUser::firstOrCreate(['url'=>$link],['url'=>$link]);
+            });
 
 		}
 

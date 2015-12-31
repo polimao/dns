@@ -25,7 +25,7 @@ class CreateZhiHuUsers extends Migration
             $table->integer('answers');
             $table->integer('concerned');
             $table->integer('be_concerned');
-            $table->string('url');
+            $table->string('url')->index();
             $table->integer('status');
             $table->timestamps();
         });

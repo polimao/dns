@@ -16,7 +16,7 @@ class CreateZhihusTable extends Migration
             $table->increments('id');
             $table->string('title');
             $table->text('content');
-            $table->string('url');
+            $table->string('url')->index();
             $table->integer('status');
             $table->timestamps();
         });
