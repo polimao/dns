@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CrawlerZhiHu::class,
         \App\Console\Commands\CrawlerWeiBo::class,
         \App\Console\Commands\CrawlerZhiHuUser::class,
+        \App\Console\Commands\CrawlerLaGou::class,
     ];
 
     /**
