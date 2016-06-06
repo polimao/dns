@@ -9,9 +9,6 @@ class Boot extends Command{
 
     protected $isDebug = false;
 
-    protected $crawler_database = 'xcar_data';
-    protected $topka_database = 'topka_production';
-
     public function __construct()
     {
         parent::__construct();
@@ -20,6 +17,40 @@ class Boot extends Command{
     protected function arguments($key=null, $default=null)
     {
         return $this->argument($key)?: $default;
+    }
+
+    protected function options()
+    {
+        foreach (func_get_args() as $arg)
+            $arr[$arg] = $this->option($arg);
+        return $arr;
+    }
+
+    protected function infos()
+    {
+        return $this->info(implode('   ', func_get_args()));
+    }
+
+    protected function sleepOnce()
+    {
+        if(date('i')%5 == 0)
+            sleep(5);
+    }
+
+    protected function argumentRun()
+    {
+        $this->start();
+
+        $argument = $this->arguments('argument', '');
+
+        $fun = studly_case($argument);
+        if(method_exists($this, $fun)){
+            $this->$fun();
+        }else{
+            $this->error('未找到处理方法');
+        }
+
+        $this->end();
     }
 
     protected function start()
