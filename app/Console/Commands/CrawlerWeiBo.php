@@ -49,24 +49,48 @@ class CrawlerWeiBo extends Boot
 
     public function grab()
     {
-        $weibos = WeiBo::whereStatus(0)->get();
+        $url = 'http://weibo.com/u/1670458304';
+        $result = $this->cacertCurl($url);
+        dd($result);
+        // $weibos = WeiBo::whereStatus(0)->get();
 
-        $count = count($weibos);
+        // $count = count($weibos);
 
-        foreach ($weibos as $key => $weibo) {
-            $this->comment($weibo->url . "      $key/$count");
+        // foreach ($weibos as $key => $weibo) {
+        //     $this->comment($weibo->url . "      $key/$count");
 
-            $crawler = new Crawler;
+        //     $crawler = new Crawler;
 
 
-            $crawler->get($weibo->url)->startfilter();
+        //     $crawler->get($weibo->url)->startfilter();
 
-            $file = fopen('./test.html', 'w');
-            fwrite($file, $crawler->getBody());
-            $weibo->name = $crawler->filter('h1.username')->text();
+        //     $file = fopen('./test.html', 'w');
+        //     fwrite($file, $crawler->getBody());
+        //     $weibo->name = $crawler->filter('h1.username')->text();
 
-            $weibo->save();
-        }
+        //     $weibo->save();
+        // }
+    }
+
+    public function cacertCurl($url)
+    {
+        $ch = curl_init();
+        // Add following two lines
+        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, TRUE); 
+        curl_setopt ($ch, CURLOPT_CAINFO, storage_path("/cacert.pem"));
+        // End
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mandrill-PHP/1.0.54');
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 600);
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return $data;
     }
 
 }

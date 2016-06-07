@@ -14,17 +14,18 @@ class CreateWeiBosTable extends Migration
     {
         Schema::create('wei_bos', function (Blueprint $table) {
              $table->increments('id');
-            $table->string('name');
-            $table->integer('sex');
-            $table->string('city');
-            $table->string('job');
-            $table->string('desc');
-            $table->integer('be_favor');
-            $table->integer('be_thank');
-            $table->integer('concerned');
-            $table->integer('be_concerned');
-            $table->string('url');
-            $table->integer('status');
+             $table->string('url');
+            // $table->string('name');
+            // $table->integer('sex');
+            // $table->string('city');
+            // $table->string('job');
+            // $table->string('desc');
+            // $table->integer('be_favor');
+            // $table->integer('be_thank');
+            // $table->integer('concerned');
+            // $table->integer('be_concerned');
+            // $table->string('url');
+            // $table->integer('status');
             $table->timestamps();
         });
     }
