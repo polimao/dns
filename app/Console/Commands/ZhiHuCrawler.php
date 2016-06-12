@@ -7,7 +7,7 @@ use App\Console\Boot;
 use App\Http\ZhiHu;
 use App\Http\ZhiHuUser;
 use Curl;
-class CrawlerZhiHu extends Boot{
+class ZhiHuCrawler extends Boot{
 
     protected $signature = 'crawler:zhihu {mutix?} {--limit=} {--offset=}';
 

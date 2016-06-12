@@ -13,12 +13,12 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \App\Console\Commands\Dms::class,
+        \App\Console\Commands\DmsCrawler::class,
         \App\Console\Commands\zhihu2::class,
-        \App\Console\Commands\CrawlerZhiHu::class,
-        \App\Console\Commands\CrawlerWeiBo::class,
-        \App\Console\Commands\CrawlerZhiHuUser::class,
-        \App\Console\Commands\CrawlerLaGou::class,
+        \App\Console\Commands\ZhiHuCrawler::class,
+        \App\Console\Commands\WeiBoCrawler::class,
+        \App\Console\Commands\ZhiHuUserCrawler::class,
+        \App\Console\Commands\LaGouCrawler::class,
         \App\Console\Commands\JiaYuanCrawler::class,
         \App\Console\Commands\SiJiaoMaoCrawler::class,
     ];

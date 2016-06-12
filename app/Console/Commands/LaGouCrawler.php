@@ -6,7 +6,7 @@ use App\Console\Boot;
 use App\Console\Commands\Crawler;
 use App\Http\LaGou;
 
-class CrawlerLaGou extends Boot
+class LaGouCrawler extends Boot
 {
     /**
      * The name and signature of the console command.

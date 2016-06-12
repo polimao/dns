@@ -7,7 +7,7 @@ use App\Console\ChineseSpell;
 use Curl;
 use App\Http\Domain;
 
-class Dms extends Command {
+class DmsCrawler extends Command {
 
     protected $signature = 'dms:make';
 
