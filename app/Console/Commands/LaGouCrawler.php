@@ -61,7 +61,7 @@ class LaGouCrawler extends Boot
     // dd($data);
             $data = json_decode($data,1);
 
-            foreach ($data['content']['result'] as $key => $value) {
+            foreach ($data['content']['positionResult']['result'] as $key => $value) {
                 $salary = explode('-',$value['salary']);
 
                 $value['min_salary'] = (int)$salary[0];
@@ -69,7 +69,7 @@ class LaGouCrawler extends Boot
 
                 // 15k-20k
 
-
+dd($value);
                 LaGou::saveData($value);
                 $this->info($value['salary'] . '     ' . $value['companyName']);
             }
