@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Console\Boot;
-use App\Console\Commands\Crawler;
+use Symfony\Component\DomCrawler\Crawler;
 use App\Http\WeiBo;
 
 class WeiBoCrawler extends Boot
@@ -41,21 +41,74 @@ class WeiBoCrawler extends Boot
     public function handle()
     {
         $this->start();
-        
-        $this->grab();
+
+        foreach (range(549,20000) as $page) {
+            $this->grab($page);
+        }
 
         $this->end();
     }
 
-    public function grab()
+    public function grab($page)
     {
-        $url = "http://www.weibo.com/u/1670458304?is_search=0&visible=0&is_all=1&is_tag=0&profile_ftype=1&page=2#feedtop";
+        $url = "http://www.weibo.com/u/1670458304?is_search=0&visible=0&is_all=1&is_tag=0&profile_ftype=1&page=" . $page . "#feedtop";
+
+        $this->comment(PHP_EOL . 'page->' . $page . PHP_EOL);
         $result = $this->cacertCurl($url);
+
+
+
+        $preg = '/FM\.view\((\{"ns":"pl\.content\.homeFeed\.index","domid":"Pl_Official[\s\S]*?)\)<\/script>/';
+
+        preg_match_all($preg,$result,$matchs);
+
+        $data = json_decode($matchs[1][0],true);
+
+        // $data = "ns":"","domid":"","css":"","js":"","html":""
+        $mids = [];
+
+        $fh = fopen('./mashier.html', "a");
+
+        $crawler = new Crawler;
+        $crawler->addHtmlContent($data['html']);
+
+        $crawler->filter('.WB_cardwrap')->each(function($node) use($mids,$fh){
+            $mids[] = $mid = $node->attr('mid');
+            $this->info('mid : ' . $mid);
+            if(WeiBo::where('mid',$mid)->exists()){
+                $this->comment('    exists');
+                return ;
+            }
+            $face_node = $node->filter('.WB_face div.face a.W_face_radius');
+
+            if(!$face_node->count())
+                return ;
+            $name = $face_node->attr('title');
+
+            $html = $node->html();
+
+            $content = $node->filter('.WB_text')->text();
+
+            $like_num = (int)$node->filter('.WB_feed_handle li')->eq(1)->filter('em')->eq(1)->text();
+
+            $comment_num = (int)$node->filter('.WB_feed_handle li')->eq(2)->filter('em')->eq(1)->text();
+
+            $forward_num = (int)$node->filter('.WB_feed_handle li')->eq(0)->filter('em')->eq(1)->text();
+
+            $original_time = $node->filter('.WB_from a')->attr('title');
+
+// var_dump(compact('mid','name','content','like_num','comment_num','forward_num','original_time'));
+
+            WeiBo::saveData(compact('mid','name','html','content','like_num','comment_num','forward_num','original_time'));
+
+            // fwrite($fh, $node->html());
+            // dd($node->html());
+        });
+        // dd();
+        // dd($crawler->filter('body')->text());
 
         // $result = iconv('gbk','utf-8//IGNORE', $result);
 
-        file_put_contents('./ttttttt.html', $result);
-        dd($result);
         // $weibos = WeiBo::whereStatus(0)->get();
 
         // $count = count($weibos);
@@ -80,7 +133,7 @@ class WeiBoCrawler extends Boot
     {
         $ch = curl_init();
         // Add following two lines
-        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, TRUE); 
+        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
         curl_setopt ($ch, CURLOPT_CAINFO, storage_path("/cacert.pem"));
         // End
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mandrill-PHP/1.0.54');

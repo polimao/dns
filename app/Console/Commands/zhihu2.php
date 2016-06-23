@@ -13,7 +13,7 @@ class zhihu2 extends Boot
      *
      * @var string
      */
-    protected $signature = 'zhihu2';
+    protected $signature = 'testzhihu';
 
     /**
      * The console command description.

@@ -9,7 +9,7 @@ use App\Http\ZhiHuUser;
 use Curl;
 class ZhiHuCrawler extends Boot{
 
-    protected $signature = 'crawler:zhihu {mutix?} {--limit=} {--offset=}';
+    protected $signature = 'zhihu {mutix?} {--limit=} {--offset=}';
 
     /** @var string [描述] */
     protected $description = 'zhihu';
@@ -58,7 +58,7 @@ class ZhiHuCrawler extends Boot{
                 $this->info($url);
 
     			$craw->get($url)->startFilter();
-
+dd(1);
                 $titleNode = $craw->filter('h2.zm-item-title');
 
                 if(count($titleNode))
